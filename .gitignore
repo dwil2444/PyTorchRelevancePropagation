@@ -136,6 +136,7 @@ dmypy.json
 !.vscode/extensions.json
 !.vscode/*.code-snippets
 
+
 # Local History for Visual Studio Code
 .history/
 
@@ -147,3 +148,16 @@ dmypy.json
 
 # Output
 output/
+
+slurm_output/*
+
+# VSCODE Debugger
+.vscode/
+
+# Scripts
+cleanup.sh
+
+# Stdout and stderr logs
+*.err
+*.log
+*.out

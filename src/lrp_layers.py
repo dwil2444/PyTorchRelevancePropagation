@@ -5,8 +5,9 @@ Layers for layer-wise relevance propagation can be modified.
 """
 import torch
 from torch import nn
-
+from logger.custom_logger import CustomLogger
 from src.lrp_filter import relevance_filter
+logger = CustomLogger(__name__).logger
 
 
 class RelevancePropagationAdaptiveAvgPool2d(nn.Module):
@@ -131,7 +132,8 @@ class RelevancePropagationConv2d(nn.Module):
 
         if mode == "z_plus":
             self.layer.weight = torch.nn.Parameter(self.layer.weight.clamp(min=0.0))
-            self.layer.bias = torch.nn.Parameter(torch.zeros_like(self.layer.bias))
+            if self.layer.bias is not None:
+                self.layer.bias = torch.nn.Parameter(torch.zeros_like(self.layer.bias))
 
         self.eps = eps
         self.top_k = top_k

@@ -11,13 +11,16 @@ import argparse
 import time
 import pathlib
 
+from logger.custom_logger import CustomLogger
 import torch
 from torchvision.models import vgg16, VGG16_Weights
+import torchvision.models as models
 
 from src.data import get_data_loader
 from src.lrp import LRPModel
 
 from projects.per_image_lrp.visualize import plot_relevance_scores
+logger = CustomLogger(__name__).logger
 
 
 def per_image_lrp(config: argparse.Namespace) -> None:
@@ -34,11 +37,11 @@ def per_image_lrp(config: argparse.Namespace) -> None:
     else:
         device = torch.device("cpu")
 
-    print(f"Using: {device}\n")
-
+    logger.info(f'Using Device: {device}')
     data_loader = get_data_loader(config)
 
     model = vgg16(weights=VGG16_Weights.DEFAULT)
+    model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1).to(device)
     model.to(device)
 
     lrp_model = LRPModel(model=model, top_k=config.top_k)
@@ -48,10 +51,12 @@ def per_image_lrp(config: argparse.Namespace) -> None:
         # y = y.to(device)  # here not used as method is unsupervised.
 
         t0 = time.time()
-        r = lrp_model.forward(x)
-        print("{time:.2f} FPS".format(time=(1.0 / (time.time() - t0))))
-
+        synth_relevance = torch.randn(1, 2048, 19, 29).to(device)
+        r = lrp_model.forward(x,
+                              synth_relevance=synth_relevance)
+        logger.info("{time:.2f} FPS".format(time=(1.0 / (time.time() - t0))))
         plot_relevance_scores(x=x, r=r, name=str(i), config=config)
+        break
 
 
 if __name__ == "__main__":
@@ -99,6 +104,14 @@ if __name__ == "__main__":
         help="Resize image before processing.",
         default=0,
         type=int,
+    )
+    parser.add_argument(
+        "-eps",
+        "--epsilon",
+        dest="epsilon",
+        help="Epsilon value for relevance propagation",
+        default=0.0,
+        type=float,
     )
 
     config = parser.parse_args()

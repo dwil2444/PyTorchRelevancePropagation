@@ -1,8 +1,12 @@
 """Script with helper function."""
+import torch.nn as nn
+import torchvision
 from src.lrp_layers import *
+import collections
+from typing import Type, Dict
+from collections import defaultdict
 
-
-def layers_lookup() -> dict:
+def layers_lookup() -> Dict[Type[nn.Module], Type[nn.Module]]:
     """Lookup table to map network layer to associated LRP operation.
 
     Returns:
@@ -18,4 +22,6 @@ def layers_lookup() -> dict:
         torch.nn.modules.pooling.MaxPool2d: RelevancePropagationMaxPool2d,
         torch.nn.modules.pooling.AdaptiveAvgPool2d: RelevancePropagationAdaptiveAvgPool2d,
     }
-    return lookup_table
+    defaultmod = lambda: None
+    lookup_dict = defaultdict(defaultmod, lookup_table)
+    return lookup_dict

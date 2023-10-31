@@ -12,14 +12,14 @@ Implementation can be adapted to work with other architectures as well by adding
 """
 from copy import deepcopy
 from collections import OrderedDict
-
+import numpy as np
 import torch
 import torch.nn as nn
 import torchvision
 from typing import Optional, List, Tuple
 from typing import OrderedDict as TypingOrderedDict
 OrderedDictType = TypingOrderedDict[str, nn.Module]
-from src.utils import layers_lookup
+from torch_lrp.utils import layers_lookup
 from logger.custom_logger import CustomLogger
 logger = CustomLogger(__name__).logger
 
@@ -40,7 +40,7 @@ class LRPModel(nn.Module):
         super().__init__()
         self.model = model
         self.top_k = top_k
-        self.eps = eps
+        self.eps = eps # remember to add epsilon function
         self.model.eval()  # self.model.train() activates dropout / batch normalization etc.!
         self.all_layer_dict: OrderedDictType = OrderedDict()
         self.all_layer_names = self._get_modules(module=self.model)
@@ -210,3 +210,17 @@ class LRPModel(nn.Module):
                     except Exception as e:
                         logger.error(e)
         return relevance.permute(0, 2, 3, 1).sum(dim=-1).squeeze().detach().cpu()
+
+
+    def __call__(self, 
+                 x: torch.Tensor,
+                 synth_relevance: Optional[torch.Tensor]=None) -> np.ndarray:
+        """
+        Args:
+
+            x:
+            label:
+
+        """
+        return self.forward(x=x,
+                            synth_relevance=synth_relevance)

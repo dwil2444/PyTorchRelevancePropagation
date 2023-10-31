@@ -16,8 +16,8 @@ import torch
 from torchvision.models import vgg16, VGG16_Weights
 import torchvision.models as models
 
-from src.data import get_data_loader
-from src.lrp import LRPModel
+from torch_lrp.data import get_data_loader
+from torch_lrp.lrp import LRPModel
 
 from projects.per_image_lrp.visualize import plot_relevance_scores
 logger = CustomLogger(__name__).logger
@@ -44,12 +44,13 @@ def per_image_lrp(config: argparse.Namespace) -> None:
     model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1).to(device)
     model.to(device)
 
+
     lrp_model = LRPModel(model=model, top_k=config.top_k)
 
     for i, (x, y) in enumerate(data_loader):
         x = x.to(device)
         # y = y.to(device)  # here not used as method is unsupervised.
-
+        # get model confidence for target label
         t0 = time.time()
         synth_relevance = torch.randn(1, 2048, 19, 29).to(device)
         r = lrp_model.forward(x,

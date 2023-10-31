@@ -1,7 +1,7 @@
 """Script with helper function."""
 import torch.nn as nn
 import torchvision
-from src.lrp_layers import *
+from torch_lrp.lrp_layers import *
 import collections
 from typing import Type, Dict
 from collections import defaultdict

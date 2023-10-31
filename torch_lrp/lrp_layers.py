@@ -6,7 +6,7 @@ Layers for layer-wise relevance propagation can be modified.
 import torch
 from torch import nn
 from logger.custom_logger import CustomLogger
-from src.lrp_filter import relevance_filter
+from torch_lrp.lrp_filter import relevance_filter
 logger = CustomLogger(__name__).logger
 
 

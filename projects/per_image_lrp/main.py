@@ -13,6 +13,7 @@ import pathlib
 
 from logger.custom_logger import CustomLogger
 import torch
+import torch.nn as nn
 from torchvision.models import vgg16, VGG16_Weights
 import torchvision.models as models
 
@@ -45,13 +46,20 @@ def per_image_lrp(config: argparse.Namespace) -> None:
     model.to(device)
 
 
-    lrp_model = LRPModel(model=model, top_k=config.top_k)
+    
 
     for i, (x, y) in enumerate(data_loader):
         x = x.to(device)
+        sm = nn.Softmax(dim=1)
         # y = y.to(device)  # here not used as method is unsupervised.
         # get model confidence for target label
         t0 = time.time()
+        eps = sm(model(x))
+        logger.info(torch.sigmoid(torch.max(eps)).item())
+        exit()
+        lrp_model = LRPModel(model=model, 
+                             top_k=config.top_k,
+                             eps=eps)
         synth_relevance = torch.randn(1, 2048, 19, 29).to(device)
         r = lrp_model.forward(x,
                               synth_relevance=synth_relevance)

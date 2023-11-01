@@ -126,18 +126,20 @@ class LRPModel(nn.Module):
         for i, layer in enumerate(layers[::-1]):
             try:
                 layers[i] = lookup_table[layer.__class__](layer=layer, top_k=self.top_k)
+                if hasattr(layers[i], 'eps'):
+                    layers[i].eps = self.eps
             except Exception as e:
                 mismatch_name = layer.__class__.__name__
                 message = (
                     f"Layer-wise relevance propagation not implemented for "
                     f"{mismatch_name} layer."
                 )
-                logger.error('**'*50)
-                logger.error(e)
-                # logger.error(layer.__class__)
-                # logger.error(layer)
-                # logger.error(f'Undefined: {mismatch_name}')
-                logger.error('**'*50)
+                # logger.error('**'*50)
+                # logger.error(e)
+                # # logger.error(layer.__class__)
+                # # logger.error(layer)
+                # # logger.error(f'Undefined: {mismatch_name}')
+                # logger.error('**'*50)
                 self.no_match[mismatch_name] = layer
         return layers
     
